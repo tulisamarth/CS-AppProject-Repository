@@ -17,13 +17,14 @@ export default class App extends Component {
   }
 
   addClassData = () => {
-    this.setState({classData: this.state.classData + [[this.state.className, this.state.averageScore]]})
+    this.setState({classData: this.state.classData + [[this.state.className, this.state.averageTestScore]]})
   }
 
   resetScore = () => {
     this.setState({averageTestScore: 0}),
     this.setState({currentTestScore: 0}),
-    this.setState({scoreCount: 0})
+    this.setState({scoreCount: 0}),
+    this.setState({className: ""})
   }
 
   inputScore = testScore => {
@@ -110,11 +111,15 @@ export default class App extends Component {
 
           <View style = {styles.subContainer}>
 
-            <Text style = {styles.title}>
+            <Text style = {styles.buttonText}>
               {this.state.averageTestScore}
             </Text>
 
-            <Text style= {styles.title}>
+            <Text style= {styles.testScoreText}>
+              Test Score History:
+            </Text>
+
+            <Text style= {styles.testScoreText}>
               {this.state.classData}
             </Text>
           </View>
@@ -167,5 +172,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
     fontColor: 'black',
     textAlign: 'center'
+  },
+  testScoreText: {
+    fontSize: 15,
+    color: 'white',
+    fontFamily: 'Arial',
+    marginTop: 40,
+    textAlign: 'center',
+    marginBottom: 20
   }
 });
