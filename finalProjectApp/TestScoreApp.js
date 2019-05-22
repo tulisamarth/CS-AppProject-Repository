@@ -10,23 +10,14 @@ export default class App extends Component {
     scoreCount: 0,
     className: "",
     classData: [[]],
-    classIndex: 0,
-    resetValues: false,
-    completeTestHistory: ""
   }
 
   calculateAverageScore = () => {
     this.setState({averageTestScore: parseFloat(this.state.averageTestScore)/this.state.scoreCount})
-    this.setState({classIndex: this.state.classIndex + 1})
-  }
-
-  finishScores = testsFinished => {
-    this.setState({completeTestHistory: testsFinished})
   }
 
   addClassData = () => {
     this.setState({classData: this.state.classData + [[this.state.className, this.state.averageTestScore]]})
-    console.log("/n")
   }
 
   resetScore = () => {
@@ -34,7 +25,6 @@ export default class App extends Component {
     this.setState({currentTestScore: 0}),
     this.setState({scoreCount: 0}),
     this.setState({className: ""})
-    this.setState({resetValues: true})
   }
 
   inputScore = testScore => {
@@ -58,7 +48,7 @@ export default class App extends Component {
           Test Scores Average App
         </Text>
 
-        <Text style = {styles.questionTitle}>
+        <Text style = {styles.title}>
           What class are you entering your test scores for?
         </Text>
 
@@ -69,7 +59,7 @@ export default class App extends Component {
         >
         </TextInput>
 
-        <Text style = {styles.questionTitle}>
+        <Text style = {styles.title}>
           What test score would you like to enter?
         </Text>
 
@@ -79,19 +69,6 @@ export default class App extends Component {
           style = {styles.textInputField}
         >
         </TextInput>
-
-        <Text style = {styles.questionTitle}>
-          Are you finished with your testing score history? (Answer Yes when complete.)
-        </Text>
-
-        <TextInput
-          value = {this.state.completeTestHistory}
-          onChangeText = {this.finishScores}
-          style = {styles.textInputField}
-        >
-        </TextInput>
-
-
 
           <View style = {styles.subContainer}>
 
@@ -132,20 +109,20 @@ export default class App extends Component {
             </TouchableHighlight>
           </View>
 
-          <View style = {styles.buttonText}>
+          <View style = {styles.subContainer}>
 
-            <Text style = {styles.testText}>
-              Average Test Score for {this.state.className}-> {this.state.averageTestScore}
+            <Text style = {styles.buttonText}>
+              {this.state.averageTestScore}
+            </Text>
+
+            <Text style= {styles.testScoreText}>
+              Test Score History:
+            </Text>
+
+            <Text style= {styles.testScoreText}>
+              {this.state.classData}
             </Text>
           </View>
-
-          <Text style= {styles.testText}>
-              Test Score History:
-          </Text>
-
-          <Text style = {styles.scoreDataText}>
-            Subject and Test Score {this.state.classIndex}: {this.state.classData}
-          </Text>
       </View>
 
     );
@@ -167,19 +144,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: 'black',
     textAlign: 'center',
-    fontSize: 20,
-    fontFamily: 'Calibri',
-    marginBottom: 10,
-    fontWeight: 'bold'
-  },
-  questionTitle: {
-    marginTop: 20,
-    color: 'red',
-    textAlign: 'center',
     fontSize: 15,
     fontFamily: 'Calibri',
-    marginBottom: 10,
-    fontWeight: 'bold'
+    marginBottom: 10
   },
   textInputField: {
     borderColor: 'yellow',
@@ -204,24 +171,14 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: 'Helvetica',
     fontColor: 'black',
-    textAlign: 'center',
-    marginTop: 10
+    textAlign: 'center'
   },
-  testText: {
+  testScoreText: {
     fontSize: 15,
     color: 'white',
     fontFamily: 'Arial',
-    marginTop: 20,
+    marginTop: 40,
     textAlign: 'center',
-    marginBottom: 20,
-    fontWeight: 'bold'
-  },
-  scoreDataText: {
-    fontSize: 12,
-    marginTop: 5,
-    fontFamily: 'Arial',
-    color: 'yellow',
-    textAlign: 'center',
+    marginBottom: 20
   }
-
 });
