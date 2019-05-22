@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { AppRegistry, View, Text, StyleSheet, TouchableHighlight, TextInput, Image, ImageBackground, Button, Video, Audio } from 'react-native';
 import { Constants } from 'expo';
 
-export default class App extends Component {
-
+export default class App extends Component { //Need to complete primary window, introduce Pan Responder for test performance analysis, and
+                                            //connect website/app resources for test recommendations. (Next priority with Pan Responder and datasets.)
   state = {
     currentTestScore: 0.0,
     averageTestScore: 0.0,
