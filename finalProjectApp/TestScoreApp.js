@@ -1,51 +1,94 @@
 import React, { Component } from 'react';
-import { AppRegistry, View, Text, StyleSheet, TouchableHighlight, TextInput, Image, ImageBackground, Button, Video, Audio, Alert } from 'react-native';
+import { AppRegistry, View, Text, StyleSheet, TouchableHighlight, TextInput, Image, ImageBackground, Button, Video, Audio, Alert, PanResponder, ScrollView } from 'react-native';
 import { Constants } from 'expo';
 import {createStackNavigator, createAppContainer, NavigationActions, StackActions, StackNavigator} from 'react-navigation';
 
-class HomeScreen extends Component {
+class LoadingClass extends Component {
+  load(cb) {
+    setTimeout(cb, 4000);
+  }
+}
+
+
+class HomeScreen extends Component { //Home Screen of App.
+  state = {
+    screenLoaded: false,
+  }
+
   static navigationOptions = {
     title: 'Home Page'
   }
 
+  constructor() {
+    super();
+    var loader = new LoadingClass();
+    loader.load(v => this.setState({screenLoaded: true}));
+  }
+
   render() {
+    if (this.state.screenLoaded === true)
+    {
     return (
-      <View style = {styles.container}>
-        <Text style = {styles.appTitle}>
-          Test Scores Navigator
-        </Text>
-        <Text style = {styles.title}>
-          Welcome to the Home Screen!
-        </Text>
+      <ScrollView>
+        <View style = {styles.container}>
+          <Text style = {styles.appTitle}>
+            Test Scores Navigator
+          </Text>
+          <Text style = {styles.title}>
+            Welcome to the Home Screen!
+          </Text>
 
-        <View style = {{flex: 1, alignItems: 'center'}}>
-          <TouchableHighlight
-            onPress = {() => Alert.alert("Test Navigator Mission: We desire to provide you an effective way to compute your test scores and compare them against national statistics.")}
-          >
-            <Image
-              source = {{uri: 'https://dwtyzx6upklss.cloudfront.net/Pictures/2000x2000fit/2/8/5/5285_marketmapeducationlogo_45714.png'}}
-              style = {styles.appLogo}
-            />
-          </TouchableHighlight>
+          <View style = {{flex: 1, alignItems: 'center'}}>
+            <TouchableHighlight
+              onPress = {() => Alert.alert("Test Navigator Mission: We desire to provide you an effective way to compute your test scores and compare them against national statistics.")}
+            >
+              <Image
+                source = {{uri: 'https://dwtyzx6upklss.cloudfront.net/Pictures/2000x2000fit/2/8/5/5285_marketmapeducationlogo_45714.png'}}
+                style = {styles.appLogo}
+              />
+            </TouchableHighlight>
 
-          <TouchableHighlight
-            style = {styles.introButton}
-            onPress = {() => this.props.navigation.navigate('TestPage')}
-          >
-            <Text style = {styles.buttonText}>
-              Enter Test Score Data
-            </Text>
-          </TouchableHighlight>
+            <TouchableHighlight
+              style = {styles.introButton}
+              onPress = {() => this.props.navigation.navigate('TestPage')}
+            >
+              <Text style = {styles.buttonText}>
+                Enter Test Score Data
+              </Text>
+            </TouchableHighlight>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     );
+    }
+    else
+    {
+      return (
+         <View style = {styles.loadingContainer}>
+          <View style = {styles.loadingContainer}>
+            <Text style = {styles.loadingText}> Loading Home Screen... </Text>
+             <Image
+                source = {{uri: 'https://i.imgur.com/gVX3yPJ.gif'}}
+                style = {styles.loadingImage}
+              />
+          </View>
+        </View>
+      );
+    }
   }
 }
 
-class TestScoresScreen extends Component{
+class TestScoresScreen extends Component{ //2nd screen of app which collects test score data.
   static navigationOptions = {
     title: 'Test Scores Page',
   }
+
+  constructor() {
+    super();
+    var loader = new LoadingClass();
+    loader.load(v => this.setState({screenLoaded: true}));
+  }
+
 
   state = {
     currentTestScore: 0.0,
@@ -56,7 +99,8 @@ class TestScoresScreen extends Component{
     classData: [[]],
     classIndex: 0,
     classWeight: 0.0,
-    scoresFinished: false
+    scoresFinished: false,
+    screenLoaded: false
   }
 
   /*
@@ -130,7 +174,10 @@ class TestScoresScreen extends Component{
 
   render()
   {
+    if (this.state.screenLoaded === true)
+    {
     return (
+      <ScrollView>
       <View style = {styles.container}>
         <Text style = {styles.title}>
           Welcome to the test scores screen!
@@ -254,7 +301,23 @@ class TestScoresScreen extends Component{
           </View>
 
         </View>
+        </ScrollView>
     );
+    }
+    else
+    {
+      return (
+         <View style = {styles.loadingContainer}>
+          <View style = {styles.loadingContainer}>
+            <Text style = {styles.loadingText}> Loading Test Scores Screen... </Text>
+             <Image
+                source = {{uri: 'https://i.imgur.com/gVX3yPJ.gif'}}
+                style = {styles.loadingImage}
+              />
+          </View>
+        </View>
+      );
+    }
   }
 }
 
@@ -263,15 +326,31 @@ class AnalysisScreen extends Component{
     title: 'Analysis Page',
   }
 
+  state = {
+    testData: (new TestScoresScreen()).state.classData,
+    screenLoaded: false,
+  }
+
+  constructor() {
+    super();
+    var loader = new LoadingClass();
+    loader.load(v => this.setState({screenLoaded: true}));
+    var analysisObj = new TestScoresScreen();
+  }
+
   render() {
+    if (this.state.screenLoaded === true)
+    {
     return (
+      <ScrollView>
       <View style = {styles.container}>
         <Text style = {styles.title}>
           Welcome to the Analysis Screen!
 
         </Text>
+
         <Text style = {styles.analysisText}>
-          Analyzing your results....
+          {this.state.testData}
         </Text>
 
         <View style = {styles.subContainer}>
@@ -285,7 +364,22 @@ class AnalysisScreen extends Component{
           </TouchableHighlight>
         </View>
       </View>
+      </ScrollView>
     );
+    }
+    else{
+      return(
+       <View style = {styles.loadingContainer}>
+          <View style = {styles.loadingContainer}>
+            <Text style = {styles.loadingText}> Analyzing Test Score Results... </Text>
+             <Image
+                source = {{uri: 'https://i.imgur.com/gVX3yPJ.gif'}}
+                style = {styles.loadingImage}
+              />
+          </View>
+        </View>
+      );
+    }
   }
 }
 
@@ -295,19 +389,66 @@ class RecommendationScreen extends Component {
     title: 'Recommendations Page',
   }
 
+  state = {
+    screenLoaded: false,
+  }
+
+  constructor() {
+    super();
+    var loader = new LoadingClass();
+    loader.load(v => this.setState({screenLoaded: true}));
+  }
+
   render() {
+    if (this.state.screenLoaded === true){
     return (
+      <ScrollView>
       <View style = {styles.container}>
         <Text style = {styles.title}>
           Welcome to the Recommendations Page!
         </Text>
       </View>
+      </ScrollView>
     );
+    }
+    else{
+      return (
+        <View style = {styles.loadingContainer}>
+          <View style = {styles.loadingContainer}>
+            <Text style = {styles.loadingText}> Preparing Testing Recommendations... </Text>
+             <Image
+                source = {{uri: 'https://i.imgur.com/gVX3yPJ.gif'}}
+                style = {styles.loadingImage}
+              />
+          </View>
+        </View>
+      );
+    }
   }
 }
 
 
 const styles = StyleSheet.create({
+  loadingText: {
+    textAlign: 'center',
+    fontFamily: 'Franklin Gothlic',
+    fontSize: 25,
+    color: 'blue',
+    fontWeight: 'bold',
+    marginTop: 30,
+  },
+  loadingImage: {
+    marginTop: 20,
+    width: 300,
+    height: 300,
+    alignItems: 'center',
+    imageAlign: 'center',
+    marginLeft: 40,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: 'black'
+  },
   container: {
     flex: 1,
     backgroundColor: 'cyan',
@@ -326,7 +467,6 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
     alignItems: 'center',
-    justifyContent: 'center',
     imageAlign: 'center'
   },
   subContainer: {
@@ -364,7 +504,7 @@ const styles = StyleSheet.create({
   },
   introButton: {
     marginTop: 25,
-    width: 100,
+    width: 200,
     height: 45,
     backgroundColor: 'white',
     alignItems: 'center' ,
@@ -387,7 +527,7 @@ const styles = StyleSheet.create({
     borderColor: 'black'
   },
   analysisButton: {
-    width: 210,
+    width: 260,
     height: 40,
     backgroundColor: 'white',
     alignItems: 'center' ,
