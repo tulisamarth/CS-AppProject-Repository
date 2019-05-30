@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import { AppRegistry, View, Text, StyleSheet, TouchableHighlight, TextInput, Image, ImageBackground, Button, Video, Audio, Alert, PanResponder, ScrollView } from 'react-native';
+import { AppRegistry, View, Text, StyleSheet, TouchableHighlight, TextInput, Image, ImageBackground, Button, Video, Audio, Alert, PanResponder, ScrollView, Linking } from 'react-native';
 import { Constants } from 'expo';
 import {createStackNavigator, createAppContainer, NavigationActions, StackActions, StackNavigator} from 'react-navigation';
 
+var globalClassData = [[]]; //Global variable that will store the test score data obtained from the TestScoresScreen class in the app
+var globalClassNames = [];
+
 class LoadingClass extends Component {
   load(cb) {
-    setTimeout(cb, 4000);
+    setTimeout(cb, 5000);
   }
 }
 
@@ -50,10 +53,10 @@ class HomeScreen extends Component { //Home Screen of App.
 
             <TouchableHighlight
               style = {styles.introButton}
-              onPress = {() => this.props.navigation.navigate('TestPage')}
+              onPress = {() => this.props.navigation.navigate('InstructionsPage')}
             >
               <Text style = {styles.buttonText}>
-                Enter Test Score Data
+                View App Instructions
               </Text>
             </TouchableHighlight>
           </View>
@@ -68,7 +71,86 @@ class HomeScreen extends Component { //Home Screen of App.
           <View style = {styles.loadingContainer}>
             <Text style = {styles.loadingText}> Loading Home Screen... </Text>
              <Image
-                source = {{uri: 'https://i.imgur.com/gVX3yPJ.gif'}}
+                source = {{uri: 'https://cdn.dribbble.com/users/1424774/screenshots/5445976/800x600.gif'}}
+                style = {styles.loadingImage}
+              />
+          </View>
+        </View>
+      );
+    }
+  }
+}
+
+class InstructionsScreen extends Component { //Provides instruction for test scores screen (after home page and before test page).
+  static navigationOptions = {
+    title: 'Instructions Page',
+  }
+
+  state = {
+    screenLoaded: false,
+  }
+
+
+  constructor() {
+    super();
+    var loader = new LoadingClass();
+    loader.load(v => this.setState({screenLoaded: true}));
+  }
+
+  render() {
+    if (this.state.screenLoaded === true){
+      return (
+        <ScrollView>
+        <View style = {styles.container}>
+          <Text style = {styles.title}>
+            Welcome to the Instructions Screen!
+          </Text>
+
+          <Text style = {styles.questionTitle}>
+            Make sure you use these steps when navigating the Test Scores Screen in Test Navigator:
+          </Text>
+
+          <Text style= {styles.testText}>
+            1. When entering the grades for a certain class, put the class name in the text field and after every grade, select Add Score.
+          </Text>
+
+          <Text style = {styles.testText}>
+            2. Add the weight for that specific class after computing the unweighted average (put 0 in text field if no weight is assigned). At this point, select Add Class Information to add the data associated with the current class to the test history.
+          </Text>
+
+          <Text style = {styles.testText}>
+          3. Click Reset Score, make sure the text fields are empty, and repeat the process for Steps 1-2.
+          </Text>
+
+          <Text style = {styles.testText}>
+          4. If necessary, at any point, click Erase Test History to remove your entire list of test scores/classes and start over.
+          </Text>
+
+          <Text style = {styles.testText}>
+          5. Once you have finished, select Finish Test Scores at the far left and click the Analyze Test Data button to proceed in the app.
+          </Text>
+
+          <View style = {{flex: 1, alignItems: 'center'}}>
+            <TouchableHighlight
+              style = {styles.introButton}
+              onPress = {() => this.props.navigation.navigate('TestPage')}
+            >
+              <Text style = {styles.buttonText}>
+                Enter Test Score Data
+              </Text>
+            </TouchableHighlight>
+          </View>
+        </View>
+        </ScrollView>
+      );
+    }
+    else{
+      return (
+         <View style = {styles.loadingContainer}>
+          <View style = {styles.loadingContainer}>
+            <Text style = {styles.loadingText}> Loading Instructions Screen... </Text>
+             <Image
+                source = {{uri: 'https://cdn.dribbble.com/users/1424774/screenshots/5445976/800x600.gif'}}
                 style = {styles.loadingImage}
               />
           </View>
@@ -87,8 +169,8 @@ class TestScoresScreen extends Component{ //2nd screen of app which collects tes
     super();
     var loader = new LoadingClass();
     loader.load(v => this.setState({screenLoaded: true}));
-  }
 
+  }
 
   state = {
     currentTestScore: 0.0,
@@ -97,6 +179,7 @@ class TestScoresScreen extends Component{ //2nd screen of app which collects tes
     scoreCount: 0.0,
     className: "",
     classData: [[]],
+    classNamesArray: [],
     classIndex: 0,
     classWeight: 0.0,
     scoresFinished: false,
@@ -123,14 +206,16 @@ class TestScoresScreen extends Component{ //2nd screen of app which collects tes
   */
 
   addClassData = () => {
-    this.setState({classData: this.state.classData + [[this.state.className, (1.0 * this.state.scoreTotal/this.state.scoreCount) + (this.state.classWeight * 10)]]}),
-    this.setState({classIndex: this.state.classIndex + 1})
+    this.setState({classData: this.state.classData + [[this.state.className,(1.0 * this.state.scoreTotal/this.state.scoreCount) + (this.state.classWeight * 10)]]}),
+    this.setState({classIndex: this.state.classIndex + 1}),
+    this.setState({classNamesArray: this.state.classNamesArray + [this.state.className]}) //Line for back-up array in case class names don't render properly in analysis stage
     console.log("/n");
   }
 
   finishScores = () => {
     this.setState({scoresFinished: true})
-    //{this.renderScores}
+    globalClassData = this.state.classData; //The following line sets the global test data variable equal to the local state variable so that it can be accessed during the analysis stage.
+    globalClassNames = this.state.classNamesArray;
   }
 
   resetScore = () => {
@@ -299,7 +384,6 @@ class TestScoresScreen extends Component{ //2nd screen of app which collects tes
               </Text>
             </TouchableHighlight>
           </View>
-
         </View>
         </ScrollView>
     );
@@ -311,7 +395,7 @@ class TestScoresScreen extends Component{ //2nd screen of app which collects tes
           <View style = {styles.loadingContainer}>
             <Text style = {styles.loadingText}> Loading Test Scores Screen... </Text>
              <Image
-                source = {{uri: 'https://i.imgur.com/gVX3yPJ.gif'}}
+                source = {{uri: 'https://cdn.dribbble.com/users/1424774/screenshots/5445976/800x600.gif'}}
                 style = {styles.loadingImage}
               />
           </View>
@@ -319,6 +403,8 @@ class TestScoresScreen extends Component{ //2nd screen of app which collects tes
       );
     }
   }
+
+
 }
 
 class AnalysisScreen extends Component{
@@ -327,15 +413,43 @@ class AnalysisScreen extends Component{
   }
 
   state = {
-    testData: (new TestScoresScreen()).state.classData,
     screenLoaded: false,
+    maxGrade: 0,
+    maxClassName: "",
+    minGrade: 0,
+    minClassName: ""
+  }
+
+  findMax = () => {
+    let maxVal = globalClassData[0][1];
+    let maxIndex = 0;
+    for (let i = 0; i<globalClassData.length; i++){
+        if (globalClassData[i][1]>maxVal){
+          maxVal = globalClassData[i][1];
+          maxIndex = i;
+        }
+    }
+    this.setState({maxGrade: maxVal}),
+    this.setState({maxClassName: globalClassNames[maxIndex]})
+  }
+
+  findMin = () => {
+    let minVal = globalClassData[0][1];
+    let minIndex= 0;
+    for (let i = 0; i<globalClassData.length; i++){
+        if (globalClassData[i][1]<minVal){
+          minVal = globalClassData[i][1];
+          minIndex = i;
+        }
+    }
+    this.setState({minGrade: minVal}),
+    this.setState({minClassName: globalClassNames[minIndex]})
   }
 
   constructor() {
     super();
     var loader = new LoadingClass();
     loader.load(v => this.setState({screenLoaded: true}));
-    var analysisObj = new TestScoresScreen();
   }
 
   render() {
@@ -346,12 +460,27 @@ class AnalysisScreen extends Component{
       <View style = {styles.container}>
         <Text style = {styles.title}>
           Welcome to the Analysis Screen!
-
         </Text>
 
         <Text style = {styles.analysisText}>
-          {this.state.testData}
+          {globalClassData}
         </Text>
+
+        <TouchableHighlight
+          onPress = {this.findMax}
+        >
+          <Text style = {styles.analysisText}>
+            Maximum Grade: {this.state.maxGrade} in {this.state.maxClassName}
+          </Text>
+        </TouchableHighlight>
+
+        <TouchableHighlight
+          onPress = {this.findMin}
+        >
+          <Text style = {styles.analysisText}>
+            Minimum Grade: {this.state.minGrade} in {this.state.minClassName}
+          </Text>
+        </TouchableHighlight>
 
         <View style = {styles.subContainer}>
           <TouchableHighlight
@@ -373,7 +502,7 @@ class AnalysisScreen extends Component{
           <View style = {styles.loadingContainer}>
             <Text style = {styles.loadingText}> Analyzing Test Score Results... </Text>
              <Image
-                source = {{uri: 'https://i.imgur.com/gVX3yPJ.gif'}}
+                source = {{uri: 'https://cdn.dribbble.com/users/1424774/screenshots/5445976/800x600.gif'}}
                 style = {styles.loadingImage}
               />
           </View>
@@ -399,6 +528,7 @@ class RecommendationScreen extends Component {
     loader.load(v => this.setState({screenLoaded: true}));
   }
 
+
   render() {
     if (this.state.screenLoaded === true){
     return (
@@ -407,6 +537,53 @@ class RecommendationScreen extends Component {
         <Text style = {styles.title}>
           Welcome to the Recommendations Page!
         </Text>
+
+        <Text style = {styles.testText}>
+          Based on your performance from the analysis, Test Navigator recommends that you use these website to improve the following skills and academic retention:
+        </Text>
+
+
+          <Text style = {styles.recommendationText}>
+            1. Khan Academy: Ideal to prepare for AP exams, SATs, ACTs, or conduct a general review of subjects using comprehensive problem review.
+          </Text>
+
+
+          <TouchableHighlight
+          onPress={()=> Linking.openURL('https://www.khanacademy.org/')}
+          >
+            <Image
+              style = {styles.websiteImage}
+              source = {{uri: 'http://www.alvernoheightsacademy.org/wp-content/uploads/2017/05/Khan-Academy-logo.jpg'}}
+            />
+          </TouchableHighlight>
+
+          <Text style = {styles.recommendationText}>
+            2. Coursera: Provides advanced and specialized courses so that you become more familiar with careers in each subject and online learning.
+          </Text>
+
+          <TouchableHighlight
+            onPress = {() => Linking.openURL('https://www.coursera.org/')}
+          >
+            <Image
+              style = {styles.websiteImage}
+              source = {{uri: 'https://i.pinimg.com/originals/f7/64/15/f76415d3d9779400d610a0f089f551e5.jpg'}}
+            />
+          </TouchableHighlight>
+
+
+          <Text style = {styles.recommendationText}>
+            3. EdX: Offers advanced courses related to certain fields within STEM such as computer science, business, engineering, biology, etc. to obtain industry expertise and career skills.
+          </Text>
+
+          <TouchableHighlight
+            onPress = {() => Linking.openURL('https://www.edx.org/')}
+          >
+            <Image
+              style = {styles.websiteImage}
+              source = {{uri: 'http://techleaders.eg/wp-content/uploads/2016/11/ntl18.jpg'}}
+            />
+          </TouchableHighlight>
+
       </View>
       </ScrollView>
     );
@@ -417,7 +594,7 @@ class RecommendationScreen extends Component {
           <View style = {styles.loadingContainer}>
             <Text style = {styles.loadingText}> Preparing Testing Recommendations... </Text>
              <Image
-                source = {{uri: 'https://i.imgur.com/gVX3yPJ.gif'}}
+                source = {{uri: 'https://cdn.dribbble.com/users/1424774/screenshots/5445976/800x600.gif'}}
                 style = {styles.loadingImage}
               />
           </View>
@@ -492,6 +669,22 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontWeight: 'bold'
   },
+  websiteImage: {
+    marginTop: 10,
+    width: 100,
+    height: 100,
+    alignItems: 'center',
+    imageAlign: 'center',
+    marginLeft: 90,
+  },
+  recommendationText: {
+    marginTop: 20,
+    color: 'red',
+    textAlign: 'center',
+    fontSize: 12,
+    fontFamily: 'Calibri',
+    marginBottom: 10,
+  },
   textInputField: {
     borderColor: 'black',
     borderWidth: 1,
@@ -562,7 +755,9 @@ const styles = StyleSheet.create({
   analysisText: {
     fontFamily: 'Helvetica',
     fontSize: 14,
-    textAlign: 'center'
+    textAlign: 'center',
+    marginBottom: 10,
+
   }
 
 });
@@ -570,6 +765,7 @@ const styles = StyleSheet.create({
 
 const AppNavigator = createStackNavigator({
   HomePage: {screen: HomeScreen},
+  InstructionsPage: {screen: InstructionsScreen},
   TestPage: {screen: TestScoresScreen},
   AnalysisPage: {screen: AnalysisScreen},
   RecommendationPage: {screen: RecommendationScreen},
